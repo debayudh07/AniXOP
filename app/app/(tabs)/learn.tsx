@@ -1,7 +1,5 @@
-import { Text, View, ScrollView, TouchableOpacity, FlatList, Alert, Dimensions } from "react-native";
+import { Text, View, ScrollView, TouchableOpacity, FlatList, Alert } from "react-native";
 import { useState } from "react";
-
-const { width } = Dimensions.get('window');
 
 interface Course {
   id: number;
@@ -57,16 +55,16 @@ export default function Learn() {
   const renderCourse = ({ item }: { item: Course }) => (
     <TouchableOpacity 
       onPress={() => handleCoursePress(item)}
-      className="bg-white rounded-2xl p-4 mb-4 shadow-sm border border-gray-100"
+      className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-3 sm:mb-4 shadow-sm border border-gray-100"
     >
-      <View className="flex-row items-start" style={{ gap: 16 }}>
-        <View className="w-16 h-16 bg-gray-50 rounded-xl items-center justify-center border border-gray-100">
-          <Text className="text-2xl">{item.thumbnail}</Text>
+      <View className="flex-row items-start gap-3 sm:gap-4">
+        <View className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-gray-50 rounded-lg sm:rounded-xl items-center justify-center border border-gray-100">
+          <Text className="text-lg sm:text-xl lg:text-2xl">{item.thumbnail}</Text>
         </View>
         
         <View className="flex-1">
           <View className="flex-row items-start justify-between mb-2">
-            <Text className="text-lg font-semibold text-black flex-1 mr-2">
+            <Text className="text-sm sm:text-base lg:text-lg font-semibold text-black flex-1 mr-2">
               {item.title}
             </Text>
             <View className={`px-2 py-1 rounded-full border ${
@@ -80,16 +78,16 @@ export default function Learn() {
             </View>
           </View>
           
-          <Text className="text-sm text-gray-600 mb-2">by {item.instructor}</Text>
+          <Text className="text-xs sm:text-sm text-gray-600 mb-2">by {item.instructor}</Text>
           
-          <View className="flex-row items-center mb-3" style={{ gap: 12 }}>
+          <View className="flex-row items-center mb-2 sm:mb-3 gap-2 sm:gap-3">
             <View className="flex-row items-center">
-              <Text className="text-yellow-500 text-sm">⭐</Text>
-              <Text className="text-sm text-gray-600 ml-1">{item.rating}</Text>
+              <Text className="text-yellow-500 text-xs sm:text-sm">⭐</Text>
+              <Text className="text-xs sm:text-sm text-gray-600 ml-1">{item.rating}</Text>
             </View>
-            <Text className="text-sm text-gray-600">•</Text>
-            <Text className="text-sm text-gray-600">{item.duration}</Text>
-            <Text className="text-sm text-gray-600">•</Text>
+            <Text className="text-xs sm:text-sm text-gray-600">•</Text>
+            <Text className="text-xs sm:text-sm text-gray-600">{item.duration}</Text>
+            <Text className="text-xs sm:text-sm text-gray-600">•</Text>
             <View className={`px-2 py-1 rounded-full border ${
               item.level === 'Beginner' ? 'bg-green-50 border-green-200' : 
               item.level === 'Intermediate' ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'
@@ -125,15 +123,15 @@ export default function Learn() {
   );
 
   const renderPagination = () => (
-    <View className="flex-row items-center justify-center mt-6" style={{ gap: 8 }}>
+    <View className="flex-row items-center justify-center mt-4 sm:mt-6 gap-1 sm:gap-2">
       <TouchableOpacity 
         onPress={() => setCurrentPage(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
-        className={`w-10 h-10 rounded-full items-center justify-center border ${
+        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full items-center justify-center border ${
           currentPage === 1 ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-300'
         }`}
       >
-        <Text className={`text-sm font-semibold ${
+        <Text className={`text-xs sm:text-sm font-semibold ${
           currentPage === 1 ? 'text-gray-400' : 'text-black'
         }`}>‹</Text>
       </TouchableOpacity>
@@ -142,11 +140,11 @@ export default function Learn() {
         <TouchableOpacity
           key={page}
           onPress={() => setCurrentPage(page)}
-          className={`w-10 h-10 rounded-full items-center justify-center border ${
+          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full items-center justify-center border ${
             page === currentPage ? 'bg-black border-black' : 'bg-white border-gray-300'
           }`}
         >
-          <Text className={`text-sm font-semibold ${
+          <Text className={`text-xs sm:text-sm font-semibold ${
             page === currentPage ? 'text-white' : 'text-black'
           }`}>
             {page}
@@ -157,11 +155,11 @@ export default function Learn() {
       <TouchableOpacity 
         onPress={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
-        className={`w-10 h-10 rounded-full items-center justify-center border ${
+        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full items-center justify-center border ${
           currentPage === totalPages ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-300'
         }`}
       >
-        <Text className={`text-sm font-semibold ${
+        <Text className={`text-xs sm:text-sm font-semibold ${
           currentPage === totalPages ? 'text-gray-400' : 'text-black'
         }`}>›</Text>
       </TouchableOpacity>
@@ -169,30 +167,30 @@ export default function Learn() {
   );
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="px-4 py-6 pb-2">
-        <Text className="text-3xl font-bold text-black mb-2">
+      <View className="px-3 sm:px-4 py-4 sm:py-6 pb-2">
+        <Text className="text-2xl sm:text-3xl font-bold text-black mb-2">
           Learn
         </Text>
-        <Text className="text-base text-gray-600 mb-6">
+        <Text className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
           Discover new skills and advance your career
         </Text>
         
         {/* Search and Filter */}
-        <View className="flex-row mb-4" style={{ gap: 12 }}>
+        <View className="flex-row mb-4 gap-2 sm:gap-3">
           <TouchableOpacity 
             onPress={handleSearch}
-            className="flex-1 bg-white rounded-xl px-4 py-3 flex-row items-center border border-gray-200"
+            className="flex-1 bg-white rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex-row items-center border border-gray-200"
           >
-            <Text className="text-gray-400 text-lg">🔍</Text>
-            <Text className="text-gray-400 ml-2">Search courses...</Text>
+            <Text className="text-gray-400 text-base sm:text-lg">🔍</Text>
+            <Text className="text-gray-400 ml-2 text-sm sm:text-base">Search courses...</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={handleFilter}
-            className="bg-white rounded-xl px-4 py-3 items-center justify-center border border-gray-200"
+            className="bg-white rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 items-center justify-center border border-gray-200"
           >
-            <Text className="text-gray-600">⚙️</Text>
+            <Text className="text-gray-600 text-base sm:text-lg">⚙️</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -202,7 +200,7 @@ export default function Learn() {
         data={currentCourses}
         renderItem={renderCourse}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ paddingHorizontal: 16 }}
+        contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 20 }}
         showsVerticalScrollIndicator={false}
       />
 
@@ -210,8 +208,8 @@ export default function Learn() {
       {renderPagination()}
       
       {/* Page Info */}
-      <View className="items-center pb-6">
-        <Text className="text-sm text-gray-500">
+      <View className="items-center pb-4 sm:pb-6">
+        <Text className="text-xs sm:text-sm text-gray-500">
           Showing {startIndex + 1}-{Math.min(endIndex, allCourses.length)} of {allCourses.length} courses
         </Text>
       </View>

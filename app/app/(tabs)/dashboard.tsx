@@ -1,7 +1,5 @@
-import { Text, View, ScrollView, TouchableOpacity, Alert, Dimensions } from "react-native";
+import { Text, View, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useState } from "react";
-
-const { width } = Dimensions.get('window');
 
 export default function Dashboard() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('week');
@@ -24,57 +22,57 @@ export default function Dashboard() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-white" showsVerticalScrollIndicator={false}>
-      <View className="px-4 py-6">
+    <ScrollView className="flex-1 bg-gray-50" showsVerticalScrollIndicator={false}>
+      <View className="px-3 sm:px-4 py-4 sm:py-6">
         {/* Header */}
-        <View className="mb-8">
-          <Text className="text-3xl font-bold text-black mb-2">
+        <View className="mb-6 sm:mb-8">
+          <Text className="text-2xl sm:text-3xl font-bold text-black mb-2">
             Dashboard
           </Text>
-          <Text className="text-base text-gray-600">
+          <Text className="text-sm sm:text-base text-gray-600">
             Welcome back, John! Here's your learning overview.
           </Text>
         </View>
 
         {/* Stats Cards */}
-        <View className="flex-row mb-6" style={{ gap: 12 }}>
-          <View className="flex-1 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <View className="flex-row items-center justify-between mb-4">
-              <View className="w-12 h-12 bg-blue-50 rounded-xl items-center justify-center">
-                <Text className="text-blue-600 text-xl">📚</Text>
+        <View className="flex-row mb-4 sm:mb-6 gap-2 sm:gap-3">
+          <View className="flex-1 bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-100">
+            <View className="flex-row items-center justify-between mb-3 sm:mb-4">
+              <View className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-blue-50 rounded-lg sm:rounded-xl items-center justify-center">
+                <Text className="text-blue-600 text-sm sm:text-lg lg:text-xl">📚</Text>
               </View>
-              <View className="bg-green-50 px-3 py-1 rounded-full border border-green-200">
+              <View className="bg-green-50 px-2 sm:px-3 py-1 rounded-full border border-green-200">
                 <Text className="text-green-700 text-xs font-semibold">+12%</Text>
               </View>
             </View>
-            <Text className="text-2xl font-bold text-black mb-1">24</Text>
-            <Text className="text-sm text-gray-600">Courses Completed</Text>
+            <Text className="text-lg sm:text-xl lg:text-2xl font-bold text-black mb-1">24</Text>
+            <Text className="text-xs sm:text-sm text-gray-600">Courses Completed</Text>
           </View>
 
-          <View className="flex-1 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <View className="flex-row items-center justify-between mb-4">
-              <View className="w-12 h-12 bg-purple-50 rounded-xl items-center justify-center">
-                <Text className="text-purple-600 text-xl">⏱️</Text>
+          <View className="flex-1 bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-100">
+            <View className="flex-row items-center justify-between mb-3 sm:mb-4">
+              <View className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-purple-50 rounded-lg sm:rounded-xl items-center justify-center">
+                <Text className="text-purple-600 text-sm sm:text-lg lg:text-xl">⏱️</Text>
               </View>
-              <View className="bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+              <View className="bg-blue-50 px-2 sm:px-3 py-1 rounded-full border border-blue-200">
                 <Text className="text-blue-700 text-xs font-semibold">+8%</Text>
               </View>
             </View>
-            <Text className="text-2xl font-bold text-black mb-1">156h</Text>
-            <Text className="text-sm text-gray-600">Study Time</Text>
+            <Text className="text-lg sm:text-xl lg:text-2xl font-bold text-black mb-1">156h</Text>
+            <Text className="text-xs sm:text-sm text-gray-600">Study Time</Text>
           </View>
         </View>
 
         {/* Progress Chart */}
-        <View className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
-          <View className="flex-row items-center justify-between mb-6">
-            <Text className="text-lg font-semibold text-black">Learning Progress</Text>
-            <View className="flex-row" style={{ gap: 8 }}>
+        <View className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 mb-4 sm:mb-6">
+          <View className="flex-row items-center justify-between mb-4 sm:mb-6">
+            <Text className="text-base sm:text-lg font-semibold text-black">Learning Progress</Text>
+            <View className="flex-row gap-1 sm:gap-2">
               {['week', 'month', 'year'].map((timeframe) => (
                 <TouchableOpacity
                   key={timeframe}
                   onPress={() => handleTimeframeChange(timeframe)}
-                  className={`px-3 py-1 rounded-full ${
+                  className={`px-2 sm:px-3 py-1 rounded-full ${
                     selectedTimeframe === timeframe ? 'bg-black' : 'bg-gray-100'
                   }`}
                 >
@@ -89,8 +87,8 @@ export default function Dashboard() {
           </View>
           
           {/* Chart */}
-          <View className="h-32 bg-gray-50 rounded-xl p-4 mb-4">
-            <View className="flex-row items-end justify-between h-full" style={{ gap: 4 }}>
+          <View className="h-24 sm:h-32 bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-3 sm:mb-4">
+            <View className="flex-row items-end justify-between h-full gap-1 sm:gap-2">
               {[40, 60, 45, 80, 70, 90, 85].map((height, index) => (
                 <View key={index} className="flex-1">
                   <View 
@@ -110,28 +108,28 @@ export default function Dashboard() {
         </View>
 
         {/* Recent Activity */}
-        <View className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
-          <View className="flex-row items-center justify-between mb-6">
-            <Text className="text-lg font-semibold text-black">Recent Activity</Text>
+        <View className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 mb-4 sm:mb-6">
+          <View className="flex-row items-center justify-between mb-4 sm:mb-6">
+            <Text className="text-base sm:text-lg font-semibold text-black">Recent Activity</Text>
             <TouchableOpacity onPress={handleViewAllActivity}>
-              <Text className="text-black text-sm font-medium">View All</Text>
+              <Text className="text-black text-xs sm:text-sm font-medium">View All</Text>
             </TouchableOpacity>
           </View>
           
-          <View style={{ gap: 16 }}>
+          <View className="gap-3 sm:gap-4">
             {[
               { course: "React Native Basics", progress: "100%", status: "Completed", time: "2h ago" },
               { course: "JavaScript Advanced", progress: "75%", status: "In Progress", time: "1d ago" },
               { course: "TypeScript Fundamentals", progress: "45%", status: "In Progress", time: "3d ago" },
               { course: "UI/UX Design", progress: "100%", status: "Completed", time: "1w ago" }
             ].map((item, index) => (
-              <View key={index} className="flex-row items-center justify-between py-3 border-b border-gray-100">
-                <View className="flex-1">
-                  <Text className="text-sm font-medium text-black mb-1">{item.course}</Text>
+              <View key={index} className="flex-row items-center justify-between py-2 sm:py-3 border-b border-gray-100">
+                <View className="flex-1 mr-2">
+                  <Text className="text-xs sm:text-sm font-medium text-black mb-1">{item.course}</Text>
                   <Text className="text-xs text-gray-500">{item.time}</Text>
                 </View>
-                <View className="flex-row items-center" style={{ gap: 12 }}>
-                  <View className="w-16 h-2 bg-gray-200 rounded-full">
+                <View className="flex-row items-center gap-2 sm:gap-3">
+                  <View className="w-12 sm:w-16 h-2 bg-gray-200 rounded-full">
                     <View 
                       className="bg-black h-2 rounded-full"
                       style={{ width: `${parseInt(item.progress)}%` }}
@@ -153,44 +151,44 @@ export default function Dashboard() {
         </View>
 
         {/* Achievement & Streak */}
-        <View className="flex-row mb-6" style={{ gap: 12 }}>
-          <View className="flex-1 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl p-6">
-            <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-white text-xl">🏆</Text>
+        <View className="flex-row mb-4 sm:mb-6 gap-2 sm:gap-3">
+          <View className="flex-1 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
+            <View className="flex-row items-center justify-between mb-3 sm:mb-4">
+              <Text className="text-white text-lg sm:text-xl">🏆</Text>
               <Text className="text-white text-xs font-semibold">NEW!</Text>
             </View>
-            <Text className="text-white text-lg font-bold mb-1">Achievement</Text>
+            <Text className="text-white text-base sm:text-lg font-bold mb-1">Achievement</Text>
             <Text className="text-white text-sm opacity-90">Code Master</Text>
             <Text className="text-white text-xs opacity-75 mt-2">Complete 20 courses</Text>
           </View>
 
-          <View className="flex-1 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <View className="flex-row items-center justify-between mb-4">
-              <View className="w-12 h-12 bg-orange-50 rounded-xl items-center justify-center">
-                <Text className="text-orange-600 text-xl">🔥</Text>
+          <View className="flex-1 bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-100">
+            <View className="flex-row items-center justify-between mb-3 sm:mb-4">
+              <View className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-orange-50 rounded-lg sm:rounded-xl items-center justify-center">
+                <Text className="text-orange-600 text-sm sm:text-lg lg:text-xl">🔥</Text>
               </View>
               <Text className="text-orange-600 text-xs font-semibold">7 days</Text>
             </View>
-            <Text className="text-2xl font-bold text-black mb-1">12</Text>
-            <Text className="text-sm text-gray-600">Day Streak</Text>
+            <Text className="text-lg sm:text-xl lg:text-2xl font-bold text-black mb-1">12</Text>
+            <Text className="text-xs sm:text-sm text-gray-600">Day Streak</Text>
           </View>
         </View>
 
         {/* Quick Actions */}
-        <View className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <Text className="text-lg font-semibold text-black mb-4">Quick Actions</Text>
-          <View className="flex-row" style={{ gap: 12 }}>
+        <View className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
+          <Text className="text-base sm:text-lg font-semibold text-black mb-3 sm:mb-4">Quick Actions</Text>
+          <View className="flex-row gap-2 sm:gap-3">
             <TouchableOpacity 
               onPress={handleContinueLearning}
-              className="flex-1 bg-black py-4 rounded-xl items-center"
+              className="flex-1 bg-black py-3 sm:py-4 rounded-lg sm:rounded-xl items-center"
             >
-              <Text className="text-white font-semibold">Continue Learning</Text>
+              <Text className="text-white text-sm sm:text-base font-semibold">Continue Learning</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               onPress={handleBrowseCourses}
-              className="flex-1 bg-gray-100 py-4 rounded-xl items-center border border-gray-200"
+              className="flex-1 bg-gray-100 py-3 sm:py-4 rounded-lg sm:rounded-xl items-center border border-gray-200"
             >
-              <Text className="text-black font-semibold">Browse Courses</Text>
+              <Text className="text-black text-sm sm:text-base font-semibold">Browse Courses</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -10,26 +10,14 @@ export default function RootLayout() {
     <GluestackUIProvider mode="dark">
       <Stack
       screenOptions={{
-        headerStyle: {
-          backgroundColor: "#F2F2F7",
-        },
-        headerTitleStyle: {
-          fontWeight: "600",
-        },
+        headerShown: false,
       }}
     >
       <Stack.Screen 
         name="index" 
-        options={{ 
-          title: "AniXOP",
-          headerShown: true 
-        }} 
       />
       <Stack.Screen 
         name="(tabs)" 
-        options={{ 
-          headerShown: false 
-        }} 
       />
     </Stack>
     </GluestackUIProvider>
