@@ -1,5 +1,6 @@
 import { Text, View, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -228,9 +229,10 @@ export default function Profile() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
-      {/* Profile Header */}
-      <View className="bg-white pb-4 sm:pb-6">
+    <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
+      <View className="flex-1">
+        {/* Profile Header */}
+        <View className="bg-white pb-4 sm:pb-6">
         <View className="items-center pt-3 sm:pt-4 pb-4 sm:pb-6">
           {/* Profile Picture */}
           <View className="relative">
@@ -295,7 +297,8 @@ export default function Profile() {
         showsVerticalScrollIndicator={false}
       >
         {renderTabContent()}
-      </ScrollView>
-    </View>
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 }

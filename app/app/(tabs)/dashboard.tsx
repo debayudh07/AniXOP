@@ -1,5 +1,6 @@
 import { Text, View, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Dashboard() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('week');
@@ -22,8 +23,9 @@ export default function Dashboard() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50" showsVerticalScrollIndicator={false}>
-      <View className="px-3 sm:px-4 py-4 sm:py-6">
+    <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="px-3 sm:px-4 py-4 sm:py-6">
         {/* Header */}
         <View className="mb-6 sm:mb-8">
           <Text className="text-2xl sm:text-3xl font-bold text-black mb-2">
@@ -32,6 +34,7 @@ export default function Dashboard() {
           <Text className="text-sm sm:text-base text-gray-600">
             Welcome back, John! Here's your learning overview.
           </Text>
+          </View>
         </View>
 
         {/* Stats Cards */}
@@ -192,7 +195,7 @@ export default function Dashboard() {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }

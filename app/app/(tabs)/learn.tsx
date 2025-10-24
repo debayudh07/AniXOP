@@ -1,5 +1,6 @@
 import { Text, View, ScrollView, TouchableOpacity, FlatList, Alert } from "react-native";
 import { useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface Course {
   id: number;
@@ -167,9 +168,10 @@ export default function Learn() {
   );
 
   return (
-    <View className="flex-1 bg-gray-50">
-      {/* Header */}
-      <View className="px-3 sm:px-4 py-4 sm:py-6 pb-2">
+    <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
+      <View className="flex-1">
+        {/* Header */}
+        <View className="px-3 sm:px-4 py-4 sm:py-6 pb-2">
         <Text className="text-2xl sm:text-3xl font-bold text-black mb-2">
           Learn
         </Text>
@@ -212,7 +214,8 @@ export default function Learn() {
         <Text className="text-xs sm:text-sm text-gray-500">
           Showing {startIndex + 1}-{Math.min(endIndex, allCourses.length)} of {allCourses.length} courses
         </Text>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
