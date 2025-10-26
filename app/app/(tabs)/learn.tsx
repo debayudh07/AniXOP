@@ -1,123 +1,98 @@
-import { Text, View, ScrollView, TouchableOpacity, FlatList, Alert } from "react-native";
+import { Text, View, ScrollView, TouchableOpacity, FlatList } from "react-native";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-interface Course {
-  id: number;
-  title: string;
-  instructor: string;
-  duration: string;
-  level: string;
-  rating: number;
-  students: number;
-  price: string;
-  thumbnail: string;
-  progress: number;
-}
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import { defiConcepts, type DeFiConcept } from '../services/gemini';
 
 export default function Learn() {
+  const router = useRouter();
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
-  const coursesPerPage = 6;
+  const conceptsPerPage = 6;
 
-  // Fake courses data
-  const allCourses = [
-    { id: 1, title: "React Native Fundamentals", instructor: "Sarah Johnson", duration: "8h 30m", level: "Beginner", rating: 4.8, students: 12500, price: "Free", thumbnail: "📱", progress: 0 },
-    { id: 2, title: "Advanced JavaScript Patterns", instructor: "Mike Chen", duration: "12h 15m", level: "Advanced", rating: 4.9, students: 8900, price: "$49", thumbnail: "⚡", progress: 75 },
-    { id: 3, title: "TypeScript Complete Guide", instructor: "Alex Rodriguez", duration: "15h 45m", level: "Intermediate", rating: 4.7, students: 15600, price: "$39", thumbnail: "🔷", progress: 0 },
-    { id: 4, title: "UI/UX Design Principles", instructor: "Emma Wilson", duration: "6h 20m", level: "Beginner", rating: 4.6, students: 9800, price: "Free", thumbnail: "🎨", progress: 100 },
-    { id: 5, title: "Node.js Backend Development", instructor: "David Kim", duration: "18h 30m", level: "Advanced", rating: 4.8, students: 11200, price: "$59", thumbnail: "🟢", progress: 45 },
-    { id: 6, title: "Python for Data Science", instructor: "Lisa Zhang", duration: "20h 10m", level: "Intermediate", rating: 4.9, students: 18900, price: "$49", thumbnail: "🐍", progress: 0 },
-    { id: 7, title: "Mobile App Design", instructor: "Tom Brown", duration: "7h 45m", level: "Beginner", rating: 4.5, students: 7600, price: "Free", thumbnail: "📲", progress: 0 },
-    { id: 8, title: "GraphQL Masterclass", instructor: "Anna Smith", duration: "10h 25m", level: "Advanced", rating: 4.7, students: 5400, price: "$69", thumbnail: "🔺", progress: 0 },
-    { id: 9, title: "Docker & Kubernetes", instructor: "James Lee", duration: "14h 15m", level: "Intermediate", rating: 4.8, students: 8700, price: "$59", thumbnail: "🐳", progress: 0 },
-    { id: 10, title: "Machine Learning Basics", instructor: "Dr. Maria Garcia", duration: "16h 40m", level: "Intermediate", rating: 4.6, students: 12300, price: "$79", thumbnail: "🤖", progress: 0 },
-    { id: 11, title: "Web Security Fundamentals", instructor: "Chris Taylor", duration: "9h 30m", level: "Beginner", rating: 4.7, students: 6800, price: "Free", thumbnail: "🔒", progress: 0 },
-    { id: 12, title: "AWS Cloud Architecture", instructor: "Jennifer Park", duration: "22h 15m", level: "Advanced", rating: 4.9, students: 9500, price: "$89", thumbnail: "☁️", progress: 0 },
-  ];
+  const categories = ['All', 'Basics', 'Trading', 'Security', 'Advanced'];
+  
+  const filteredConcepts = selectedCategory === 'All' 
+    ? defiConcepts 
+    : defiConcepts.filter((c: DeFiConcept) => c.category === selectedCategory);
 
-  const totalPages = Math.ceil(allCourses.length / coursesPerPage);
-  const startIndex = (currentPage - 1) * coursesPerPage;
-  const endIndex = startIndex + coursesPerPage;
-  const currentCourses = allCourses.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(filteredConcepts.length / conceptsPerPage);
+  const startIndex = (currentPage - 1) * conceptsPerPage;
+  const endIndex = startIndex + conceptsPerPage;
+  const currentConcepts = filteredConcepts.slice(startIndex, endIndex);
 
-  const handleCoursePress = (course: Course) => {
-    Alert.alert("Course Selected", `Opening ${course.title} by ${course.instructor}`);
+  const handleConceptPress = (concept: DeFiConcept) => {
+    router.push(`/(tabs)/concept/${concept.id}` as any);
   };
 
-  const handleSearch = () => {
-    Alert.alert("Search", `Searching for: ${searchQuery}`);
-  };
-
-  const handleFilter = () => {
-    Alert.alert("Filter", "Opening filter options...");
-  };
-
-  const renderCourse = ({ item }: { item: Course }) => (
+  const renderConcept = ({ item }: { item: DeFiConcept }) => (
     <TouchableOpacity 
-      onPress={() => handleCoursePress(item)}
-      className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-3 sm:mb-4 shadow-sm border border-gray-100"
+      onPress={() => handleConceptPress(item)}
+      className="rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-3 sm:mb-4 shadow-lg"
+      style={{ 
+        backgroundColor: '#1b1717',
+        borderWidth: 1,
+        borderColor: '#c70000'
+      }}
     >
       <View className="flex-row items-start gap-3 sm:gap-4">
-        <View className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-gray-50 rounded-lg sm:rounded-xl items-center justify-center border border-gray-100">
-          <Text className="text-lg sm:text-xl lg:text-2xl">{item.thumbnail}</Text>
+        <View className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-lg sm:rounded-xl items-center justify-center" style={{ backgroundColor: '#630000', borderWidth: 1, borderColor: '#c70000' }}>
+          <Text className="text-lg sm:text-xl lg:text-2xl">{item.emoji}</Text>
         </View>
         
         <View className="flex-1">
           <View className="flex-row items-start justify-between mb-2">
-            <Text className="text-sm sm:text-base lg:text-lg font-semibold text-black flex-1 mr-2">
+            <Text className="text-sm sm:text-base lg:text-lg font-semibold flex-1 mr-2" style={{ color: '#ede8dd' }}>
               {item.title}
             </Text>
-            <View className={`px-2 py-1 rounded-full border ${
-              item.price === 'Free' ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'
-            }`}>
-              <Text className={`text-xs font-semibold ${
-                item.price === 'Free' ? 'text-green-700' : 'text-blue-700'
-              }`}>
-                {item.price}
+            <View className="px-2 py-1 rounded-full" style={{ 
+              backgroundColor: '#ede8dd',
+              borderWidth: 1,
+              borderColor: '#ede8dd'
+            }}>
+              <Text className="text-xs font-semibold" style={{ color: '#3a0000' }}>
+                {item.estimatedTime}
               </Text>
             </View>
           </View>
-          
-          <Text className="text-xs sm:text-sm text-gray-600 mb-2">by {item.instructor}</Text>
           
           <View className="flex-row items-center mb-2 sm:mb-3 gap-2 sm:gap-3">
-            <View className="flex-row items-center">
-              <Text className="text-yellow-500 text-xs sm:text-sm">⭐</Text>
-              <Text className="text-xs sm:text-sm text-gray-600 ml-1">{item.rating}</Text>
+            <View className="px-2 py-1 rounded-full" style={{ 
+              backgroundColor: item.category === 'Basics' ? '#ede8dd' : 
+                             item.category === 'Trading' ? '#c70000' :
+                             item.category === 'Security' ? '#c70000' : '#630000',
+              borderWidth: 1,
+              borderColor: item.category === 'Basics' ? '#ede8dd' : '#c70000'
+            }}>
+              <Text className="text-xs font-medium" style={{ 
+                color: item.category === 'Basics' ? '#3a0000' : '#ede8dd'
+              }}>
+                {item.category}
+              </Text>
             </View>
-            <Text className="text-xs sm:text-sm text-gray-600">•</Text>
-            <Text className="text-xs sm:text-sm text-gray-600">{item.duration}</Text>
-            <Text className="text-xs sm:text-sm text-gray-600">•</Text>
-            <View className={`px-2 py-1 rounded-full border ${
-              item.level === 'Beginner' ? 'bg-green-50 border-green-200' : 
-              item.level === 'Intermediate' ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'
-            }`}>
-              <Text className={`text-xs font-medium ${
-                item.level === 'Beginner' ? 'text-green-700' : 
-                item.level === 'Intermediate' ? 'text-yellow-700' : 'text-red-700'
-              }`}>
-                {item.level}
+            <Text className="text-xs sm:text-sm" style={{ color: '#ede8dd', opacity: 0.5 }}>•</Text>
+            <View className="px-2 py-1 rounded-full" style={{ 
+              backgroundColor: item.difficulty === 'Beginner' ? '#ede8dd' : 
+                             item.difficulty === 'Intermediate' ? '#c70000' : '#630000',
+              borderWidth: 1,
+              borderColor: item.difficulty === 'Beginner' ? '#ede8dd' : '#c70000'
+            }}>
+              <Text className="text-xs font-medium" style={{ 
+                color: item.difficulty === 'Beginner' ? '#3a0000' : '#ede8dd'
+              }}>
+                {item.difficulty}
               </Text>
             </View>
           </View>
           
-          {item.progress > 0 && (
-            <View className="mb-2">
-              <View className="flex-row items-center justify-between mb-1">
-                <Text className="text-xs text-gray-600">Progress</Text>
-                <Text className="text-xs text-gray-600">{item.progress}%</Text>
-              </View>
-              <View className="w-full h-2 bg-gray-200 rounded-full">
-                <View 
-                  className="bg-black h-2 rounded-full"
-                  style={{ width: `${item.progress}%` }}
-                />
-              </View>
-            </View>
-          )}
-          
-          <Text className="text-xs text-gray-500">{item.students.toLocaleString()} students</Text>
+          <TouchableOpacity 
+            onPress={() => handleConceptPress(item)}
+            className="mt-2 py-2 rounded-lg items-center"
+            style={{ backgroundColor: '#630000', borderWidth: 1, borderColor: '#c70000' }}
+          >
+            <Text className="text-xs font-semibold" style={{ color: '#ede8dd' }}>Learn with AI →</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </TouchableOpacity>
@@ -128,26 +103,31 @@ export default function Learn() {
       <TouchableOpacity 
         onPress={() => setCurrentPage(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
-        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full items-center justify-center border ${
-          currentPage === 1 ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-300'
-        }`}
+        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full items-center justify-center"
+        style={{
+          backgroundColor: currentPage === 1 ? '#630000' : '#c70000',
+          borderWidth: 1,
+          borderColor: currentPage === 1 ? '#630000' : '#ede8dd'
+        }}
       >
-        <Text className={`text-xs sm:text-sm font-semibold ${
-          currentPage === 1 ? 'text-gray-400' : 'text-black'
-        }`}>‹</Text>
+        <Text className="text-xs sm:text-sm font-semibold" style={{ 
+          color: '#ede8dd',
+          opacity: currentPage === 1 ? 0.4 : 1
+        }}>‹</Text>
       </TouchableOpacity>
       
       {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
         <TouchableOpacity
           key={page}
           onPress={() => setCurrentPage(page)}
-          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full items-center justify-center border ${
-            page === currentPage ? 'bg-black border-black' : 'bg-white border-gray-300'
-          }`}
+          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full items-center justify-center"
+          style={{
+            backgroundColor: page === currentPage ? '#c70000' : '#630000',
+            borderWidth: 1,
+            borderColor: page === currentPage ? '#ede8dd' : '#c70000'
+          }}
         >
-          <Text className={`text-xs sm:text-sm font-semibold ${
-            page === currentPage ? 'text-white' : 'text-black'
-          }`}>
+          <Text className="text-xs sm:text-sm font-semibold" style={{ color: '#ede8dd' }}>
             {page}
           </Text>
         </TouchableOpacity>
@@ -156,66 +136,82 @@ export default function Learn() {
       <TouchableOpacity 
         onPress={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
-        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full items-center justify-center border ${
-          currentPage === totalPages ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-300'
-        }`}
+        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full items-center justify-center"
+        style={{
+          backgroundColor: currentPage === totalPages ? '#630000' : '#c70000',
+          borderWidth: 1,
+          borderColor: currentPage === totalPages ? '#630000' : '#ede8dd'
+        }}
       >
-        <Text className={`text-xs sm:text-sm font-semibold ${
-          currentPage === totalPages ? 'text-gray-400' : 'text-black'
-        }`}>›</Text>
+        <Text className="text-xs sm:text-sm font-semibold" style={{ 
+          color: '#ede8dd',
+          opacity: currentPage === totalPages ? 0.4 : 1
+        }}>›</Text>
       </TouchableOpacity>
     </View>
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
-      <View className="flex-1">
-        {/* Header */}
-        <View className="px-3 sm:px-4 py-4 sm:py-6 pb-2">
-        <Text className="text-2xl sm:text-3xl font-bold text-black mb-2">
-          Learn
-        </Text>
-        <Text className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-          Discover new skills and advance your career
-        </Text>
-        
-        {/* Search and Filter */}
-        <View className="flex-row mb-4 gap-2 sm:gap-3">
-          <TouchableOpacity 
-            onPress={handleSearch}
-            className="flex-1 bg-white rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex-row items-center border border-gray-200"
-          >
-            <Text className="text-gray-400 text-base sm:text-lg">🔍</Text>
-            <Text className="text-gray-400 ml-2 text-sm sm:text-base">Search courses...</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            onPress={handleFilter}
-            className="bg-white rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 items-center justify-center border border-gray-200"
-          >
-            <Text className="text-gray-600 text-base sm:text-lg">⚙️</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Courses List */}
-      <FlatList
-        data={currentCourses}
-        renderItem={renderCourse}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 20 }}
-        showsVerticalScrollIndicator={false}
+    <View className="flex-1">
+      <LinearGradient
+        colors={['#3a0000', '#630000', '#1b1717']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
       />
-
-      {/* Pagination */}
-      {renderPagination()}
       
-      {/* Page Info */}
-      <View className="items-center pb-4 sm:pb-6">
-        <Text className="text-xs sm:text-sm text-gray-500">
-          Showing {startIndex + 1}-{Math.min(endIndex, allCourses.length)} of {allCourses.length} courses
-        </Text>
+      <SafeAreaView className="flex-1" edges={['top']}>
+        <View className="flex-1">
+          <View className="px-3 sm:px-4 py-4 sm:py-6 pb-2">
+            <Text className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#ede8dd' }}>
+              DeFi Learning Hub
+            </Text>
+            <Text className="text-sm sm:text-base mb-4 sm:mb-6" style={{ color: '#ede8dd', opacity: 0.7 }}>
+              Master DeFi protocols with AI-powered tutorials
+            </Text>
+            
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
+              <View className="flex-row gap-2">
+                {categories.map((category) => (
+                  <TouchableOpacity
+                    key={category}
+                    onPress={() => {
+                      setSelectedCategory(category);
+                      setCurrentPage(1);
+                    }}
+                    className="px-4 py-2 rounded-full"
+                    style={{
+                      backgroundColor: selectedCategory === category ? '#c70000' : '#630000',
+                      borderWidth: 1,
+                      borderColor: selectedCategory === category ? '#ede8dd' : '#c70000'
+                    }}
+                  >
+                    <Text className="text-xs font-semibold" style={{ color: '#ede8dd' }}>
+                      {category}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+
+          <FlatList
+            data={currentConcepts}
+            renderItem={renderConcept}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 20 }}
+            showsVerticalScrollIndicator={false}
+          />
+
+          {renderPagination()}
+          
+          <View className="items-center pb-4 sm:pb-6">
+            <Text className="text-xs sm:text-sm" style={{ color: '#ede8dd', opacity: 0.6 }}>
+              Showing {startIndex + 1}-{Math.min(endIndex, filteredConcepts.length)} of {filteredConcepts.length} concepts
+            </Text>
+          </View>
         </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
