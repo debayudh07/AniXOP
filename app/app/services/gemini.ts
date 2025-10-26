@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const API_KEY = "AIzaSyBAM4qxH4q8TRX2lOfDhfefaq2a2BCzs_s";
+const API_KEY = process.env.GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 export interface DeFiConcept {

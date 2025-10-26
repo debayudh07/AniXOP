@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://debayudhbasu:deba4123@cluster0.cnctpsi.mongodb.net/ethonline?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_URI = process.env.MONGODB_URI || '';
 
 let isConnected = false;
 
