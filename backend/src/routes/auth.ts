@@ -13,6 +13,40 @@ const generateToken = (userId: string): string => {
   return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
 };
 
+// Middleware to verify token
+const authenticateToken = async (req: Request, res: Response, next: any) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      error: 'Access denied',
+      message: 'No token provided'
+    });
+  }
+
+  try {
+    const decoded: any = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid token',
+        message: 'User not found'
+      });
+    }
+    (req as any).user = user;
+    next();
+  } catch (error) {
+    return res.status(403).json({
+      success: false,
+      error: 'Invalid token',
+      message: 'Token is invalid or expired'
+    });
+  }
+};
+
 // Register route
 router.post('/register', async (req: Request, res: Response) => {
   try {
@@ -161,6 +195,96 @@ router.post('/login', async (req: Request, res: Response) => {
   }
 });
 
+// Get user profile
+router.get('/profile', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    
+    res.status(200).json({
+      success: true,
+      message: 'Profile retrieved successfully',
+      data: {
+        user: {
+          id: String(user._id),
+          email: user.email,
+          username: user.username,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt
+        }
+      }
+    });
+  } catch (error: any) {
+    console.error('Get profile error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: error.message || 'Failed to retrieve profile'
+    });
+  }
+});
+
+// Update user profile
+router.put('/profile', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const { username, email } = req.body;
+
+    const updateData: any = {};
+    
+    if (username !== undefined) {
+      updateData.username = username;
+    }
+
+    if (email !== undefined && email !== user.email) {
+      // Check if email is already taken
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(409).json({
+          success: false,
+          error: 'Email already exists',
+          message: 'This email is already in use'
+        });
+      }
+      updateData.email = email;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+        message: 'User does not exist'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: {
+        user: {
+          id: String(updatedUser._id),
+          email: updatedUser.email,
+          username: updatedUser.username,
+          createdAt: updatedUser.createdAt,
+          updatedAt: updatedUser.updatedAt
+        }
+      }
+    });
+  } catch (error: any) {
+    console.error('Update profile error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: error.message || 'Failed to update profile'
+    });
+  }
+});
+
 // Database status route
 router.get('/status', (req: Request, res: Response) => {
   const dbStatus = getConnectionStatus();
@@ -169,6 +293,32 @@ router.get('/status', (req: Request, res: Response) => {
     database: dbStatus,
     timestamp: new Date().toISOString(),
   });
+});
+
+// Reset a specific lesson (removes from progress)
+router.post('/reset-lesson/:conceptId', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const { conceptId } = req.params;
+
+    // Remove the lesson from user's progress
+    user.lessonProgress = user.lessonProgress.filter(
+      (progress: any) => progress.conceptId !== conceptId
+    );
+    
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Lesson progress reset successfully'
+    });
+  } catch (error: any) {
+    console.error('Reset lesson error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to reset lesson'
+    });
+  }
 });
 
 export default router;

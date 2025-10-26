@@ -15,6 +15,7 @@ import {
 import "../global.css";
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import '@/global.css';
+import { AuthProvider } from './context/AuthContext';
 
 // 0. Setup queryClient
 const queryClient = new QueryClient();
@@ -62,22 +63,33 @@ export default function RootLayout() {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <GluestackUIProvider mode="dark">
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          >
-            <Stack.Screen 
-              name="index" 
-            />
-            <Stack.Screen 
-              name="(tabs)" 
-            />
-          </Stack>
-          <StatusBar style="light" />
-        </GluestackUIProvider>
-        <AppKit />
+        <AuthProvider>
+          <GluestackUIProvider mode="dark">
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            >
+              <Stack.Screen 
+                name="index" 
+              />
+              <Stack.Screen 
+                name="auth" 
+              />
+              <Stack.Screen 
+                name="(tabs)" 
+              />
+              <Stack.Screen 
+                name="concept/[id]"
+                options={{
+                  presentation: 'modal',
+                }}
+              />
+            </Stack>
+            <StatusBar style="light" />
+          </GluestackUIProvider>
+          <AppKit />
+        </AuthProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

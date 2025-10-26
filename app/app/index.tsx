@@ -1,13 +1,17 @@
 import { useRef, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Animated, StyleSheet, Dimensions } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import AnimatedTitle from '@/components/ui/AnimatedTitle';
+import { useAuth } from './context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
 export default function HomePage() {
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  
   // Animation values
   const floatAnim = useRef(new Animated.Value(0)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
@@ -325,41 +329,6 @@ export default function HomePage() {
         ))}
       </View>
 
-      {/* Mathematical Symbols */}
-      <View style={[StyleSheet.absoluteFillObject]} className="opacity-[0.05]">
-        {['π', '∑', '√', '∞', '∫', 'α', 'β', 'θ'].map((symbol, i) => (
-          <Animated.View
-            key={`math-${i}`}
-            className="absolute"
-            style={{
-              left: `${(i * 12 + 8) % 90}%`,
-              top: `${(i * 15 + 12) % 85}%`,
-              transform: [
-                {
-                  translateY: floatAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, i % 2 === 0 ? -20 : 20],
-                  }),
-                },
-                {
-                  rotate: rotateAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ['0deg', i % 2 === 0 ? '180deg' : '-180deg'],
-                  }),
-                },
-              ],
-            }}
-          >
-            <View 
-              className="w-[30px] h-[30px] rounded-full justify-center items-center"
-              style={{
-                backgroundColor: i % 2 === 0 ? '#c70000' : '#ede8dd',
-              }}
-            />
-          </Animated.View>
-        ))}
-      </View>
-
       {/* Subtle texture overlay */}
       <View style={[StyleSheet.absoluteFillObject]} className="bg-[#1b1717] opacity-40" />
 
@@ -417,90 +386,6 @@ export default function HomePage() {
             }} 
           />
 
-          {/* Edge Glows - Top */}
-          <Animated.View 
-            className="absolute h-1 bg-[#c70000]"
-            style={{ 
-              top: 0,
-              left: '33%',
-              width: '34%',
-              shadowColor: '#c70000', 
-              shadowOpacity: glowAnim.interpolate({
-                inputRange: [1, 1.4],
-                outputRange: [0.6, 0.9]
-              }),
-              shadowRadius: glowAnim.interpolate({
-                inputRange: [1, 1.4],
-                outputRange: [20, 30]
-              }),
-              shadowOffset: { width: 0, height: 0 },
-              elevation: 10,
-            }} 
-          />
-          
-          {/* Edge Glows - Bottom */}
-          <Animated.View 
-            className="absolute h-1 bg-[#c70000]"
-            style={{ 
-              bottom: 0,
-              left: '33%',
-              width: '34%',
-              shadowColor: '#c70000', 
-              shadowOpacity: glowAnim.interpolate({
-                inputRange: [1, 1.4],
-                outputRange: [0.6, 0.9]
-              }),
-              shadowRadius: glowAnim.interpolate({
-                inputRange: [1, 1.4],
-                outputRange: [20, 30]
-              }),
-              shadowOffset: { width: 0, height: 0 },
-              elevation: 10,
-            }} 
-          />
-
-          {/* Edge Glows - Left */}
-          <Animated.View 
-            className="absolute w-1 bg-[#c70000]"
-            style={{ 
-              left: 0,
-              top: '33%',
-              height: '34%',
-              shadowColor: '#c70000', 
-              shadowOpacity: glowAnim.interpolate({
-                inputRange: [1, 1.4],
-                outputRange: [0.6, 0.9]
-              }),
-              shadowRadius: glowAnim.interpolate({
-                inputRange: [1, 1.4],
-                outputRange: [20, 30]
-              }),
-              shadowOffset: { width: 0, height: 0 },
-              elevation: 10,
-            }} 
-          />
-
-          {/* Edge Glows - Right */}
-          <Animated.View 
-            className="absolute w-1 bg-[#c70000]"
-            style={{ 
-              right: 0,
-              top: '33%',
-              height: '34%',
-              shadowColor: '#c70000', 
-              shadowOpacity: glowAnim.interpolate({
-                inputRange: [1, 1.4],
-                outputRange: [0.6, 0.9]
-              }),
-              shadowRadius: glowAnim.interpolate({
-                inputRange: [1, 1.4],
-                outputRange: [20, 30]
-              }),
-              shadowOffset: { width: 0, height: 0 },
-              elevation: 10,
-            }} 
-          />
-
           {/* Content Area */}
           <View className="flex-1 items-center justify-center p-8">
             <View className="items-center">
@@ -519,7 +404,7 @@ export default function HomePage() {
                 <AnimatedTitle />
               </LinearGradient>
 
-                <Text 
+              <Text 
                 className="text-xl text-[#ede8dd] mb-8 text-center"
                 style={{
                   textShadowColor: '#c70000',
@@ -530,63 +415,25 @@ export default function HomePage() {
                 Master DeFi Protocols with AI
               </Text>
 
-              {/* Buttons */}
-              <View className="flex-col w-full" style={{ gap: 16, marginTop: 48, maxWidth: 320 }}>
-                <Link href="/(tabs)/dashboard" asChild>
-                  <TouchableOpacity 
-                    className="border-2 border-[#c70000] py-4 px-8 rounded-lg items-center bg-[#3a0000]"
-                    style={{
-                      shadowColor: '#c70000',
-                      shadowOpacity: 0.5,
-                      shadowRadius: 20,
-                      shadowOffset: { width: 0, height: 0 },
-                      elevation: 10,
-                    }}
-                    activeOpacity={0.8}
-                  >
-                    <ShinyText icon="📊" style={{}}>
-                      DEFI DASHBOARD
-                    </ShinyText>
-                  </TouchableOpacity>
-                </Link>
-
-                <Link href="/(tabs)/learn" asChild>
-                  <TouchableOpacity activeOpacity={0.8}>
-                    <View style={{
-                      borderWidth: 3,
-                      borderColor: '#1b1717',
-                      borderRadius: 10,
-                      shadowColor: '#000',
-                      shadowOpacity: 0.8,
-                      shadowRadius: 15,
-                      shadowOffset: { width: 0, height: 0 },
-                      elevation: 20,
-                    }}>
-                      <LinearGradient
-                        colors={['#c70000', '#630000']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={{
-                          paddingVertical: 16,
-                          paddingHorizontal: 32,
-                          borderRadius: 7,
-                          alignItems: 'center',
-                          shadowColor: '#c70000',
-                          shadowOpacity: 0.7,
-                          shadowRadius: 30,
-                          shadowOffset: { width: 0, height: 0 },
-                          elevation: 15,
-                        }}
-                      >
-                        <ShinyText icon="📚" style={{}}>
-                          EXPLORE DEFI
-                        </ShinyText>
-                      </LinearGradient>
-                    </View>
-                  </TouchableOpacity>
-                </Link>
+              {/* Main Button */}
+              <View className="w-full" style={{ marginTop: 48, maxWidth: 320 }}>
+                <TouchableOpacity 
+                  onPress={() => router.push(isAuthenticated ? '/(tabs)/dashboard' : '/auth')}
+                  className="border-2 border-[#c70000] py-4 px-8 rounded-lg items-center bg-[#3a0000]"
+                  style={{
+                    shadowColor: '#c70000',
+                    shadowOpacity: 0.5,
+                    shadowRadius: 20,
+                    shadowOffset: { width: 0, height: 0 },
+                    elevation: 10,
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <ShinyText icon={isAuthenticated ? "📊" : "🔐"}>
+                    {isAuthenticated ? 'DASHBOARD' : 'GET STARTED'}
+                  </ShinyText>
+                </TouchableOpacity>
               </View>
-
             </View>
           </View>
         </View>

@@ -1,10 +1,143 @@
-import { Text, View, ScrollView, TouchableOpacity, Alert } from "react-native";
-import { useState } from "react";
+import { Text, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
+import { useState, useEffect, useCallback } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from 'expo-linear-gradient';
+import { useAuth } from '../context/AuthContext';
+import { useFocusEffect } from '@react-navigation/native';
+
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.2:3000';
+
+interface UserStats {
+  totalTimeSpent: number;
+  totalConceptsCompleted: number;
+  currentStreak: number;
+  longestStreak: number;
+  totalConcepts: number;
+}
+
+interface RecentActivity {
+  conceptId: string;
+  course: string;
+  progress: number;
+  status: string;
+  time: string;
+}
 
 export default function Dashboard() {
+  const { user, token } = useAuth();
   const [selectedTimeframe, setSelectedTimeframe] = useState('week');
+  const [userStats, setUserStats] = useState<UserStats>({
+    totalTimeSpent: 0,
+    totalConceptsCompleted: 0,
+    currentStreak: 0,
+    longestStreak: 0,
+    totalConcepts: 0,
+  });
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (token) {
+      fetchUserStats();
+    } else {
+      setLoading(false);
+    }
+  }, [token]);
+
+  // Refetch stats when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      if (token) {
+        fetchUserStats();
+      }
+    }, [token])
+  );
+
+  const fetchUserStats = async () => {
+    try {
+      setLoading(true);
+      const [statsResponse, progressResponse] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/learning/stats`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }),
+        fetch(`${API_BASE_URL}/api/defi/concepts/status`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+      ]);
+
+      if (statsResponse.ok) {
+        const data = await statsResponse.json();
+        if (data.success && data.data) {
+          setUserStats(data.data);
+        }
+      }
+
+      if (progressResponse.ok) {
+        const data = await progressResponse.json();
+        if (data.success && data.data) {
+          // Map concept IDs to titles
+          const conceptMap: Record<string, string> = {
+            'defi': 'Introduction to DeFi',
+            'amm': 'Automated Market Makers (AMM)',
+            'lppools': 'Liquidity Pools & LP Tokens',
+            'snipping': 'Token Sniping',
+            'yield-farming': 'Yield Farming Strategies',
+            'impermanent-loss': 'Impermanent Loss Explained',
+            'smart-contracts': 'Smart Contract Basics',
+            'front-running': 'Front-Running & MEV',
+            'gas-fees': 'Understanding Gas Fees',
+            'defi-protocols': 'Major DeFi Protocols',
+            'rugpulls': 'Identifying Rug Pulls',
+            'slashing': 'Slashing (Validator Penalties)',
+          };
+
+          // Convert to RecentActivity format and sort by lastOpenedAt
+          const activities: RecentActivity[] = data.data
+            .filter((item: any) => item.status !== 'not_started')
+            .sort((a: any, b: any) => {
+              const dateA = new Date(a.lastOpenedAt || a.completedAt).getTime();
+              const dateB = new Date(b.lastOpenedAt || b.completedAt).getTime();
+              return dateB - dateA;
+            })
+            .slice(0, 4)
+            .map((item: any) => {
+              const lastDate = item.lastOpenedAt || item.completedAt;
+              const diffTime = new Date().getTime() - new Date(lastDate).getTime();
+              const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+              const diffDays = Math.floor(diffHours / 24);
+              
+              let timeAgo = '';
+              if (diffHours < 1) timeAgo = 'Just now';
+              else if (diffHours < 24) timeAgo = `${diffHours}h ago`;
+              else if (diffDays === 1) timeAgo = '1d ago';
+              else timeAgo = `${diffDays}d ago`;
+
+              return {
+                conceptId: item.conceptId,
+                course: conceptMap[item.conceptId] || item.conceptId,
+                progress: item.progress,
+                status: item.status === 'completed' ? 'Completed' : 'In Progress',
+                time: timeAgo
+              };
+            });
+          
+          setRecentActivity(activities);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleContinueLearning = () => {
     Alert.alert("Continue Learning", "Redirecting to your current course...");
@@ -57,7 +190,9 @@ export default function Dashboard() {
                     <Text className="text-xs font-semibold" style={{ color: '#630000' }}>+12%</Text>
                   </View>
                 </View>
-                <Text className="text-lg sm:text-xl lg:text-2xl font-bold mb-1" style={{ color: '#ede8dd' }}>8</Text>
+                <Text className="text-lg sm:text-xl lg:text-2xl font-bold mb-1" style={{ color: '#ede8dd' }}>
+                  {loading ? '...' : userStats.totalConcepts}
+                </Text>
                 <Text className="text-xs sm:text-sm" style={{ color: '#ede8dd', opacity: 0.8 }}>DeFi Concepts</Text>
               </View>
 
@@ -70,7 +205,9 @@ export default function Dashboard() {
                     <Text className="text-xs font-semibold" style={{ color: '#630000' }}>+8%</Text>
                   </View>
                 </View>
-                <Text className="text-lg sm:text-xl lg:text-2xl font-bold mb-1" style={{ color: '#ede8dd' }}>42h</Text>
+                <Text className="text-lg sm:text-xl lg:text-2xl font-bold mb-1" style={{ color: '#ede8dd' }}>
+                  {loading ? '...' : `${Math.floor(userStats.totalTimeSpent / 60)}h`}
+                </Text>
                 <Text className="text-xs sm:text-sm" style={{ color: '#ede8dd', opacity: 0.8 }}>Learning Time</Text>
               </View>
             </View>
@@ -131,41 +268,44 @@ export default function Dashboard() {
               </View>
               
               <View className="gap-3 sm:gap-4">
-                {[
-                  { course: "Liquidity Pools", progress: "100%", status: "Completed", time: "2h ago" },
-                  { course: "Token Sniping", progress: "75%", status: "In Progress", time: "1d ago" },
-                  { course: "Rug Pulls", progress: "45%", status: "In Progress", time: "3d ago" },
-                  { course: "DeFi Basics", progress: "100%", status: "Completed", time: "1w ago" }
-                ].map((item, index) => (
-                  <View key={index} className="flex-row items-center justify-between py-2 sm:py-3" style={{ borderBottomWidth: 1, borderBottomColor: '#630000' }}>
-                    <View className="flex-1 mr-2">
-                      <Text className="text-xs sm:text-sm font-medium mb-1" style={{ color: '#ede8dd' }}>{item.course}</Text>
-                      <Text className="text-xs" style={{ color: '#ede8dd', opacity: 0.5 }}>{item.time}</Text>
-                    </View>
-                    <View className="flex-row items-center gap-2 sm:gap-3">
-                      <View className="w-12 sm:w-16 h-2 rounded-full" style={{ backgroundColor: '#630000' }}>
-                        <View 
-                          className="h-2 rounded-full"
-                          style={{ 
-                            width: `${parseInt(item.progress)}%`,
-                            backgroundColor: '#c70000'
-                          }}
-                        />
+                {recentActivity.length > 0 ? (
+                  recentActivity.map((item, index) => (
+                    <View key={index} className="flex-row items-center justify-between py-2 sm:py-3" style={{ borderBottomWidth: 1, borderBottomColor: '#630000' }}>
+                      <View className="flex-1 mr-2">
+                        <Text className="text-xs sm:text-sm font-medium mb-1" style={{ color: '#ede8dd' }}>{item.course}</Text>
+                        <Text className="text-xs" style={{ color: '#ede8dd', opacity: 0.5 }}>{item.time}</Text>
                       </View>
-                      <View className="px-2 py-1 rounded-full" style={{ 
-                        backgroundColor: item.status === 'Completed' ? '#ede8dd' : '#630000',
-                        borderWidth: 1,
-                        borderColor: item.status === 'Completed' ? '#ede8dd' : '#c70000'
-                      }}>
-                        <Text className="text-xs font-medium" style={{ 
-                          color: item.status === 'Completed' ? '#3a0000' : '#ede8dd'
+                      <View className="flex-row items-center gap-2 sm:gap-3">
+                        <View className="w-12 sm:w-16 h-2 rounded-full" style={{ backgroundColor: '#630000' }}>
+                          <View 
+                            className="h-2 rounded-full"
+                            style={{ 
+                              width: `${item.progress}%`,
+                              backgroundColor: '#c70000'
+                            }}
+                          />
+                        </View>
+                        <View className="px-2 py-1 rounded-full" style={{ 
+                          backgroundColor: item.status === 'Completed' ? '#ede8dd' : '#630000',
+                          borderWidth: 1,
+                          borderColor: item.status === 'Completed' ? '#ede8dd' : '#c70000'
                         }}>
-                          {item.status}
-                        </Text>
+                          <Text className="text-xs font-medium" style={{ 
+                            color: item.status === 'Completed' ? '#3a0000' : '#ede8dd'
+                          }}>
+                            {item.status}
+                          </Text>
+                        </View>
                       </View>
                     </View>
+                  ))
+                ) : (
+                  <View className="py-8 items-center">
+                    <Text className="text-sm" style={{ color: '#ede8dd', opacity: 0.5 }}>
+                      No recent activity yet. Start learning!
+                    </Text>
                   </View>
-                ))}
+                )}
               </View>
             </View>
 
@@ -176,9 +316,11 @@ export default function Dashboard() {
                   <Text className="text-lg sm:text-xl">🏆</Text>
                   <Text className="text-xs font-semibold" style={{ color: '#ede8dd' }}>NEW!</Text>
                 </View>
-                <Text className="text-base sm:text-lg font-bold mb-1" style={{ color: '#ede8dd' }}>Achievement</Text>
-                <Text className="text-sm" style={{ color: '#ede8dd', opacity: 0.9 }}>DeFi Explorer</Text>
-                <Text className="text-xs mt-2" style={{ color: '#ede8dd', opacity: 0.75 }}>Learn 5 DeFi concepts</Text>
+                <Text className="text-base sm:text-lg font-bold mb-1" style={{ color: '#ede8dd' }}>Completed</Text>
+                <Text className="text-sm" style={{ color: '#ede8dd', opacity: 0.9 }}>
+                  {loading ? '...' : `${userStats.totalConceptsCompleted}`}
+                </Text>
+                <Text className="text-xs mt-2" style={{ color: '#ede8dd', opacity: 0.75 }}>Concepts mastered</Text>
               </View>
 
               <View className="flex-1 rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 shadow-lg" style={{ backgroundColor: '#630000', borderWidth: 1, borderColor: '#c70000' }}>
@@ -188,7 +330,9 @@ export default function Dashboard() {
                   </View>
                   <Text className="text-xs font-semibold" style={{ color: '#ede8dd' }}>7 days</Text>
                 </View>
-                <Text className="text-lg sm:text-xl lg:text-2xl font-bold mb-1" style={{ color: '#ede8dd' }}>7</Text>
+                <Text className="text-lg sm:text-xl lg:text-2xl font-bold mb-1" style={{ color: '#ede8dd' }}>
+                  {loading ? '...' : userStats.currentStreak}
+                </Text>
                 <Text className="text-xs sm:text-sm" style={{ color: '#ede8dd', opacity: 0.8 }}>Day Streak</Text>
               </View>
             </View>

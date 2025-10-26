@@ -1,11 +1,15 @@
+import dotenv from 'dotenv';
+// Load environment variables first, before any other imports
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import defiRoutes from './routes/defi';
+import learningRoutes from './routes/learning';
+import simulatorRoutes from './routes/simulator';
+import synthesizeRoutes from './routes/defi-synthesize';
 import { connectDB, getConnectionStatus } from './config/database';
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +22,9 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/defi', defiRoutes);
+app.use('/api/learning', learningRoutes);
+app.use('/api/simulator', simulatorRoutes);
+app.use('/api/synthesize', synthesizeRoutes);
 
 // Health check with database status
 app.get('/health', (req, res) => {

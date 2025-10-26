@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || '';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/anixop';
 
 let isConnected = false;
 
@@ -12,6 +12,11 @@ export const connectDB = async (): Promise<void> => {
 
   try {
     console.log('🔄 Attempting to connect to MongoDB...');
+    
+    // Validate MongoDB URI
+    if (!MONGODB_URI || (!MONGODB_URI.startsWith('mongodb://') && !MONGODB_URI.startsWith('mongodb+srv://'))) {
+      throw new Error('Invalid MongoDB URI. Expected format: mongodb:// or mongodb+srv://');
+    }
     
     await mongoose.connect(MONGODB_URI, {
       // MongoDB options

@@ -67,7 +67,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="concept/[id]"
         options={{
-          tabBarButton: () => null,
+          href: null,
         }}
       />
     </Tabs>
